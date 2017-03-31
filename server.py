@@ -6,13 +6,11 @@ import threading
 import time
 from random import randint, random, randrange
 
-
 seuil = 2000
 clients = [0, 0]
 requst_total = 0
 
 class ServerTask(threading.Thread):
-    """ServerTask"""
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):

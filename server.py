@@ -39,16 +39,18 @@ class ServerTask(threading.Thread):
                 source = seuil - requst_total
                 #publisher.send_string("%i " % (source))
                 print("capacite: %s" % (source))
-                if source >=0:
-                    publisher.send_string("%i " % (clients[0]))
-                    publisher1.send_string("%i " % (clients[1]))
-                else:
-                    mss = clients[0] + source / numClient
-                    mss1 = clients[1] + source / numClient
-                    publisher.send_string("%i " % (mss))
-                    publisher1.send_string("%i " % (mss1))
             finally:
                 lock.release()
+                
+            if source >=0:
+                publisher.send_string("%i " % (clients[0]))
+                publisher1.send_string("%i " % (clients[1]))
+            else:
+                mss = clients[0] + source / numClient
+                mss1 = clients[1] + source / numClient
+                publisher.send_string("%i " % (mss))
+                publisher1.send_string("%i " % (mss1))
+
                         
             time.sleep(1)
 

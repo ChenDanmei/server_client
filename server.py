@@ -10,6 +10,8 @@ seuil = 2000
 clients = [0, 0]
 requst_total = 0
 
+lock = threading.Lock()
+
 class ServerTask(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -29,21 +31,25 @@ class ServerTask(threading.Thread):
         publisher1.connect("tcp://10.195.96.98:5556")
                 
         while True:
-            global seuil
-            global clients
-            global requst_total
-            source = seuil - requst_total
-            #publisher.send_string("%i " % (source))
-            print("capacite: %s" % (source))
-            if source >=0:
-                publisher.send_string("%i " % (clients[0]))
-                publisher1.send_string("%i " % (clients[1]))
-            else:
-                mss = clients[0] + source / numClient
-                mss1 = clients[1] + source / numClient
-                publisher.send_string("%i " % (mss))
-                publisher1.send_string("%i " % (mss1))
-
+            lock.acquire()
+            try:
+                global seuil
+                global clients
+                global requst_total
+                source = seuil - requst_total
+                #publisher.send_string("%i " % (source))
+                print("capacite: %s" % (source))
+                if source >=0:
+                    publisher.send_string("%i " % (clients[0]))
+                    publisher1.send_string("%i " % (clients[1]))
+                else:
+                    mss = clients[0] + source / numClient
+                    mss1 = clients[1] + source / numClient
+                    publisher.send_string("%i " % (mss))
+                    publisher1.send_string("%i " % (mss1))
+            finally:
+                lock.release()
+                        
             time.sleep(1)
 
         socket.close()
@@ -64,10 +70,14 @@ class ServerUpadate(threading.Thread):
             print("Received request from client%s: %s" % (identite, message))
             id = int(identite)
             requst = int(message)
-            global clients
-            clients[id] = requst
-            global requst_total
-            requst_total = sum(clients)
+            lock.acquire()
+            try:
+                global clients
+                clients[id] = requst
+                global requst_total
+                requst_total = sum(clients)
+            finally:
+                lock.release()
         socket.close()
         context.term()
 

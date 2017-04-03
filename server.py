@@ -33,6 +33,7 @@ class ServerTask(threading.Thread):
         while True:
             lock.acquire()
             try:
+                #fetch data from shared object
                 global seuil
                 global clients
                 global requst_total
@@ -74,6 +75,7 @@ class ServerUpadate(threading.Thread):
             requst = int(message)
             lock.acquire()
             try:
+                #fetch data from shared object
                 global clients
                 clients[id] = requst
                 global requst_total
